@@ -41,14 +41,25 @@ $(function(){
         const LAST_DAY =  new Date(y, m, 0).getDate();
 
         // createの場合は両方ともPRIVATE、viewする場合はPUBLIC/PRIVATE
-        if($("input[name=project]:eq(0)").prop("checked")){
-            url_head = `https:/\/scrapbox.io/${PJNAME_PUBLIC}/${year}.${month}_研究ノート_${USERNAME}`;
+        // mode -> create / view
+        // projectName -> PUBLIC(nkmr-lab) / PRIVATE(satoken)
+        var url_head = "https://scrapbox.io/";
+        var projectName;
+        if($("input[name=project]:checked").val()=="public" && $("input[name=mode]:checked").val()=="view"){
+            url_head += PJNAME_PUBLIC;
         }else{
-            url_head = `https:/\/scrapbox.io/${PJNAME_PRIVATE}/月報_${year}.${month}`;
+            url_head += PJNAME_PRIVATE;
         }
 
+        if($("input[name=project]:checked").val()=="public"){
+            url_head += `/${year}.${month}_研究ノート_${USERNAME}`;
+        }else{
+            url_head += `/月報_${year}.${month}`;
+        }
+
+
         // 作成/閲覧の切り替え結果は、ここでのみ使用
-        if($("input[name=mode]:eq(1)").prop("checked")){
+        if($("input[name=mode]:checked").val()=="view"){
             $(this).siblings("a").attr("href", url_head).text(url_head);
             return;
         }
