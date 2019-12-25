@@ -1,8 +1,8 @@
 $(function(){
     var padWithZero = day => ("00" + day).slice(-2);
 
+    // 年セレクトボックスの作成
     $(".year-select").each(function(){
-
         for(var i = 0; i < 2; i ++){
             var y = new Date().getFullYear() + i;
             var $option = $("<option>", {
@@ -14,6 +14,7 @@ $(function(){
         }
     });
 
+    // 月セレクトボックスの作成
     $(".month-select").each(function(){
         for (i of Array(12).keys()){
             var $option = $("<option>", {
@@ -25,7 +26,8 @@ $(function(){
         }
     });
 
-    $(".year-select, .month-select").on("change", function(){
+    // リンク生成
+    $(".year-select, .month-select, input[name=mode], input[name=project]").on("change", function(){
         const DAY_OF_WEEK = ["日", "月", "火", "水", "木", "金", "土"];
         const NUM_DAYS_OF_WEEK = DAY_OF_WEEK.length;
 
@@ -38,8 +40,18 @@ $(function(){
         var dwIndex1st = new Date(y, m-1, 1).getDay();
         const LAST_DAY =  new Date(y, m, 0).getDate();
 
-        // 研究ノートのストック（プロジェクトsatokenにジャンプ）
-        var url_head = `https:/\/scrapbox.io/satoken/研究ノート_${year}.${month}_${USERNAME}`;
+        // createの場合は両方ともPRIVATE、viewする場合はPUBLIC/PRIVATE
+        if($("input[name=project]:eq(0)").prop("checked")){
+            url_head = `https:/\/scrapbox.io/${PJNAME_PUBLIC}/${year}.${month}_研究ノート_${USERNAME}`;
+        }else{
+            url_head = `https:/\/scrapbox.io/${PJNAME_PRIVATE}/月報_${year}.${month}`;
+        }
+
+        // 作成/閲覧の切り替え結果は、ここでのみ使用
+        if($("input[name=mode]:eq(1)").prop("checked")){
+            $(this).siblings("a").attr("href", url_head).text(url_head);
+            return;
+        }
 
         var year_prev_tag = y;
         var year_next_tag = y;
@@ -56,9 +68,17 @@ $(function(){
 
         // ここからbodyを組み立てる
         var body = "";
-        body += `#${year_prev_tag}.${padWithZero(month_prev_tag)}_研究ノート_${USERNAME} `;
-        body += `#${year_next_tag}.${padWithZero(month_next_tag)}_研究ノート_${USERNAME} `;
-        body += `#${USERNAME}` + "\n".repeat(2);
+        if($("input[name=project]:eq(0)").prop("checked")){
+            body += `#${year_prev_tag}.${padWithZero(month_prev_tag)}_研究ノート_${USERNAME} `;
+            body += `#${year_next_tag}.${padWithZero(month_next_tag)}_研究ノート_${USERNAME} `;
+            body += `#${USERNAME}` + "\n".repeat(2);
+        }else{
+            body += `#月報_${year_prev_tag}.${padWithZero(month_prev_tag)} `;
+            body += `#月報_${year_next_tag}.${padWithZero(month_next_tag)}`;
+            body += "\n".repeat(2);
+        }
+
+        var headers = $("input[name=project]:eq(0)").prop("checked") ? HEADERS_PUBLIC : HEADERS_PRIVATE;
 
         for(var d = 1; d <= LAST_DAY; d ++){
             var dwIndex = (dwIndex1st + d - 1) % NUM_DAYS_OF_WEEK;
@@ -66,14 +86,20 @@ $(function(){
             body += `[*( ${year}.${month}.${padWithZero(d)} (${DAY_OF_WEEK[dwIndex]})]\n`;
             body += "[_]\n".repeat(3);
             body += "\n";
-            body += "[*> 雑記]";
-            body += "\n".repeat(3);
+            headers.forEach(header =>
+                body += `[*> ${header}]` + "\n".repeat(3)
+            );
         }
 
-        body += `#${year_prev_tag}.${padWithZero(month_prev_tag)}_研究ノート_${USERNAME} `;
-        body += `#${year_next_tag}.${padWithZero(month_next_tag)}_研究ノート_${USERNAME}`;
+        if($("input[name=project]:eq(0)").prop("checked")){
+            body += `#${year_prev_tag}.${padWithZero(month_prev_tag)}_研究ノート_${USERNAME} `;
+            body += `#${year_next_tag}.${padWithZero(month_next_tag)}_研究ノート_${USERNAME}`;
+        }else{
+            body += `#月報_${year_prev_tag}.${padWithZero(month_prev_tag)}　`;
+            body += `#月報_${year_next_tag}.${padWithZero(month_next_tag)}`;
+        }
 
         var url = url_head + "?body=" + encodeURIComponent(body);
-        $("#scrapboxLink").attr("href", url).text(url_head);
+        $(this).siblings("a").attr("href", url).text(url_head);
     });
 });

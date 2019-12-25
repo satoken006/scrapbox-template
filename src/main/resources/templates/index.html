@@ -14,16 +14,20 @@
     <title>scrapbox-template</title>
 </head>
 <body>
-    <h4>研究ノート</h4>
-    <div id="selectWrapperPublic">
-        <div class="create-page">
-            <select class="year-select"></select>年
-            <select class="month-select"></select>月
-            <div>
-                <p>作成</p>
-                <a target="_blank" id="scrapboxLink">[ここにリンクが展開されます]</a>
-            </div>
-        </div>
+    <div class="create-page">
+        Mode<br>
+        <input type="radio" name="mode" value="create">create
+        <input type="radio" name="mode" value="view" checked>view<br>
+        <br>
+        Project<br>
+        <input type="radio" name="project" value="public">public
+        <input type="radio" name="project" value="private" checked>private<br>
+        <br>
+
+        <select class="year-select"></select>年
+        <select class="month-select"></select>月<br>
+        <br>
+        <a target="_blank">[ここにリンクが展開されます]</a>
     </div>
 </body>
 </html>
